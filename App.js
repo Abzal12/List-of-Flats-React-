@@ -1,8 +1,29 @@
-// stage 1 - show all the items in the flats array of objects
-import React, {useState} from 'react';
+import React, { useState } from 'react';
+
 function App() {
-    // make your code here
-    const apartmentList = [
+
+    const [formData, setFormData] = useState({
+        name: '',
+        location: '',
+        price: '',
+        available: false,
+        image: '',
+    });
+    const [buttonVisible, setButtonVisible] = useState(true);
+
+    const handleInputChange = (e) => {
+        const {name, value, type, checked} = e.target;
+        const inputValue = type === 'checkbox' ? checked : value;
+        setFormData({...formData, [name]: inputValue});
+    };
+
+    const [formVisible, setFormVisible] = useState(false);
+
+    const handleButtonClick = () => {
+        setFormVisible(!formVisible);
+    }
+
+    const [flats, setFlats] = useState([
         {
             id: 1,
             name: 'Cozy Apartment',
@@ -27,29 +48,54 @@ function App() {
             available: true,
             image: 'https://example.com/charming-studio.jpg',
         },
-    ]
+    ])
+    const handleAddFlat = (e) => {
+        e.preventDefault();
+
+        const newFlat = {
+            id: flats.length + 1,
+            name: formData.name,
+            location: formData.location,
+            price: formData.price,
+            available: formData.available,
+            image: formData.image,
+        };
+        setFlats(prevList=>[...flats, newFlat]);
+        setFormData(
+            {
+                name: '',
+                location: '',
+                price: '',
+                available: false,
+                image: '',
+            }
+        )
+        setFormVisible(false);
+    };
 
     const createForm = () => {
-        setFormToInput(
+        return (
             <div>
                 <h2>Add New Flat</h2>
-                <form action="">
-                    <label htmlFor="name">Name:</label><input type="text" id="name" name="name" value="name"/>
+                <form onSubmit={handleAddFlat}>
+                    <label htmlFor="name">Name:</label><input type="text" id="name" name="name" value={formData.name}
+                                                              onChange={handleInputChange}/>
                     <label htmlFor="location">Location:</label><input type="text" id="location" name="location"
-                                                                      value="location"/>
+                                                                      value={formData.location}
+                                                                      onChange={handleInputChange}/>
                     <label htmlFor="price">Price:</label><input type="text" id="price" name="price"
-                                                                value="price"/>
+                                                                value={formData.price} onChange={handleInputChange}/>
                     <label htmlFor="image">Image URL:</label><input type="text" id="image" name="image"
-                                                                    value="image"/>
+                                                                    value={formData.image}
+                                                                    onChange={handleInputChange}/>
                     <label htmlFor="available">Availability:</label><input type="checkbox" id="available"
-                                                                              name="available" value="" checked/>
-                    <button id='addFlatButton' onClick={createForm}>Add Flat</button>
+                                                                           name="available" checked={formData.available}
+                                                                           onChange={handleInputChange}/>
+                    <button type="submit">Add Flat</button>
                 </form>
             </div>
         );
     };
-
-    const [addFlatButton, setFormToInput] = useState(<button id='addFlatButton' onClick={createForm}>Add Flat</button>);
 
     return (
         <div className={App}>
@@ -59,18 +105,19 @@ function App() {
             </header>
 
             <main>
-                {addFlatButton}
+                {formVisible && createForm()}
+                {!formVisible && <button id="addFlatButton" onClick={handleButtonClick}>Add Flat</button>}
                 <h2>Flat List</h2>
-                <ul style={{listStyle: "none"}}>
-                    {apartmentList.map((apartment) => (
-                        <li key={apartment.id} style={{listStyleType: "disc"}}>
-                            <h3>{apartment.name}</h3>
-                            <p>Location: {apartment.location}</p>
-                            <p>Price: {apartment.price}</p>
-                            <p>Availability: {apartment.available === true ? 'Available' : 'Not Available'}</p>
+                <ul style={{listStyle: "none"}} key="form">
+                    {flats.map((flat, index) => (
+                        <li key={index} style={{listStyleType: "disc"}}>
+                            <h3>{flat.name}</h3>
+                            <p>Location: {flat.location}</p>
+                            <p>Price: {flat.price}</p>
+                            <p>Availability: {flat.available ? 'Available' : 'Not Available'}</p>
                             <img
-                                src={apartment.image}
-                                alt={apartment.name}
+                                src={flat.image}
+                                alt={flat.name}
                             />
                         </li>
                     ))}
@@ -79,5 +126,4 @@ function App() {
         </div>
     )
 }
-
 export default App;
